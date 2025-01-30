@@ -48,10 +48,16 @@
         .error {
             background-color: #ffebee;
             color: #c62828;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
         }
         .success {
             background-color: #E8F5E9;
             color: #2E7D32;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -78,25 +84,45 @@
         const fileName = document.getElementById('fileName');
         const status = document.getElementById('status');
 
-        // Drag and drop handlers
-        dropZone.addEventListener('dragover', (e) => {
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults (e) {
             e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
             dropZone.classList.add('dragover');
-        });
+        }
 
-        dropZone.addEventListener('dragleave', () => {
+        function unhighlight(e) {
             dropZone.classList.remove('dragover');
-        });
+        }
 
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
             handleFiles(files);
-        });
+        }
 
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
         });
 
         function handleFiles(files) {
@@ -112,19 +138,38 @@
             }
         }
 
+        async function checkServer() {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/clean', {
+                    method: 'OPTIONS'
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Server check failed:', error);
+                return false;
+            }
+        }
+
         processButton.addEventListener('click', async () => {
             const file = fileInput.files[0];
             if (!file) return;
 
-            const formData = new FormData();
-            formData.append('file', file);
-
             status.className = '';
-            status.textContent = 'Processing...';
-            processButton.disabled = true;
+            status.textContent = 'Checking server connection...';
 
             try {
-                const response = await fetch('http://localhost:5000/clean', {
+                const serverAvailable = await checkServer();
+                if (!serverAvailable) {
+                    throw new Error('Cannot connect to server. Please ensure the application is running properly.');
+                }
+
+                status.textContent = 'Processing...';
+                processButton.disabled = true;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://127.0.0.1:5000/clean', {
                     method: 'POST',
                     body: formData
                 });
@@ -149,6 +194,7 @@
             } catch (error) {
                 status.className = 'error';
                 status.textContent = `Error: ${error.message}`;
+                console.error('Error:', error);
             } finally {
                 processButton.disabled = false;
             }

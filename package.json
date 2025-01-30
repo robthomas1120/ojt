@@ -1,10 +1,19 @@
 {
   "name": "excel-cleaner",
   "version": "1.0.0",
+  "description": "Excel Program Outcomes Cleaner",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^28.3.3"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
   },
   "build": {
     "appId": "com.excel.cleaner",
@@ -13,8 +22,8 @@
     },
     "extraResources": [
       {
-        "from": "venv",
-        "to": "venv"
+        "from": "myenv",
+        "to": "myenv"
       },
       {
         "from": "script.py",
