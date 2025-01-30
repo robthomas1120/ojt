@@ -1,0 +1,10 @@
+for virtua environment [MacOS]:
+python3 -m venv myenv
+source myenv/bin/activate
+pip install -r requirements.txt
+
+for nod modules [MacOS]:
+npm init -y
+npm install electron electron-is-dev
+npm install --save-dev electron-builder
+npm run build
