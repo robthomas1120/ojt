@@ -1,0 +1,25 @@
+{
+  "name": "excel-cleaner",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build"
+  },
+  "build": {
+    "appId": "com.excel.cleaner",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "extraResources": [
+      {
+        "from": "venv",
+        "to": "venv"
+      },
+      {
+        "from": "script.py",
+        "to": "script.py"
+      }
+    ]
+  }
+}

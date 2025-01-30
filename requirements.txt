@@ -1,0 +1,4 @@
+Copyflask
+pandas
+openpyxl
+werkzeug
